@@ -11,6 +11,7 @@
 #include <fstream> // load from the file
 #include <iostream> // cout + string
 #include <vector>
+#include <sstream>
 
 
 // Simple struct to load the json data into
@@ -40,17 +41,9 @@ bool LoadPerson(const std::string& path) {
 
     std::string rawData; // where to store raw json data
 
-    do {
-        char chunk[1024]; // 1kb chunk
-        std::streamsize len = file.readsome(chunk, sizeof(chunk)); // load a chunk of data
-
-        if(len > 0){
-            rawData.append(chunk, len); // copy-append data onto rawData
-            continue;
-        }
-
-        break; // end of file
-    } while(file.good());
+    std::stringstream buf;
+    buf << file.rdbuf(); // load data from file
+    rawData = buf.str();
 
     file.close();
 
@@ -58,20 +51,24 @@ bool LoadPerson(const std::string& path) {
         std::cout << "failed to parse json data\n";
         return false;
     }
-    
+
     Person person;
 
-    if(!json::loadProperty("name", person.name)) std::cout << "failed to load person's name\n";
-    if(!json::loadProperty("age", person.age)) std::cout << "failed to load person's age\n";
+    if(!json::loadProperty("name", person.name)){
+        std::cout << "failed to load person's name\n";
+        return false;
+    }
+    if(!json::loadProperty("age", person.age)){
+        std::cout << "failed to load person's age\n";
+        return false;
+    }
 
     json::Object hobbies;
     if(json::loadProperty("hobbies", hobbies)){
         for(auto it = hobbies.MemberBegin(); it != hobbies.MemberEnd(); ++it){ // iterate over hobbies
-            if(!it->name.IsString()) continue; // skip non-string hobbies
-            
             Person::Hobby hobby;
-            hobby.name = it->name.GetString(); // load hobby key
-            if(json::loadProperty(hobbies, hobby.name.data(), hobby.rating)){ // load hobby rating value (using json::loadProperty instead of hobby.value because of the type)
+            if(json::loadValue(it->name, hobby.name)
+            && json::loadValue(it->value, hobby.rating)){
                 person.hobbies.emplace_back(hobby); // add hobby to person's hobby list
             }
         }
@@ -81,7 +78,7 @@ bool LoadPerson(const std::string& path) {
 
     json::Array inventory;
     if(json::loadPropertyArray("inventory", inventory)){
-        for(auto it = inventory.Begin(); it != inventory.End(); ++it){ // iterate over inventory array
+        for(json::Object* it = inventory.Begin(); it != inventory.End(); ++it){ // iterate over inventory array
             std::string item; // where to store the string
             if(json::loadValue(*it, item)){ // load string from array element
                 person.inventory.push_back(item); // add inventory item to person's inventory list
