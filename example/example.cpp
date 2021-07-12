@@ -60,12 +60,11 @@ bool LoadPerson(const std::string& path) {
     }
     
     Person person;
-    json::Object hobbies;
-    json::Array inventory;
 
     if(!json::loadProperty("name", person.name)) std::cout << "failed to load person's name\n";
     if(!json::loadProperty("age", person.age)) std::cout << "failed to load person's age\n";
 
+    json::Object hobbies;
     if(json::loadProperty("hobbies", hobbies)){
         for(auto it = hobbies.MemberBegin(); it != hobbies.MemberEnd(); ++it){ // iterate over hobbies
             if(!it->name.IsString()) continue; // skip non-string hobbies
@@ -80,11 +79,12 @@ bool LoadPerson(const std::string& path) {
         std::cout << "failed to load person's hobbies\n";
     }
 
+    json::Array inventory;
     if(json::loadPropertyArray("inventory", inventory)){
-        for(auto it = inventory.Begin(); it != inventory.End(); ++it){
-            std::string item;
-            if(json::loadValue(*it, item)){
-                person.inventory.push_back(it->GetString());
+        for(auto it = inventory.Begin(); it != inventory.End(); ++it){ // iterate over inventory array
+            std::string item; // where to store the string
+            if(json::loadValue(*it, item)){ // load string from array element
+                person.inventory.push_back(item); // add inventory item to person's inventory list
             }
         }
     } else {
