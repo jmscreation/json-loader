@@ -6,6 +6,8 @@
         "skiing":3,
         "sports":3,
         "working":1
-    }
-
+    },
+    "inventory":[
+        "purse","clothes","tennis racket"
+    ]
 }

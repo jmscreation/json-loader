@@ -22,6 +22,7 @@ namespace json {
 
     // public
     typedef rapidjson::Value Object;
+    typedef rapidjson::Value Array;
     extern bool displayErrors;
 
     // private
@@ -29,6 +30,7 @@ namespace json {
     extern rapidjson::Document _jsonData;
 
     bool loadProperty(const Object& config, const char* name, Object& parameter);
+    bool loadPropertyArray(const Object& config, const char* name, Array& parameter);
 
     template<class T>
     bool loadProperty(const Object& config, const char* name, T& parameter) {
@@ -71,8 +73,52 @@ namespace json {
     }
 
     template<class T>
+    bool loadValue(const Object& value, T& parameter) {
+        if(std::is_pointer<T>::value){
+            if(displayErrors){
+                std::cout << "Pointer cannot be loaded from JSON\n";
+            }
+            return false;
+        }
+
+        if(!_ready){
+            if(displayErrors){
+                std::cout << "Must parse JSON data before loading property\n";
+            }
+            return false;
+        }
+
+        
+        if(std::is_arithmetic<T>::value && value.IsNumber()) {
+            if(value.IsUint()) { parameter = value.GetUint(); return true; }
+            if(value.IsInt()) { parameter = value.GetInt(); return true; }
+
+            if(value.IsInt64()) { parameter = value.GetInt64(); return true; }
+            if(value.IsUint64()) { parameter = value.GetUint64(); return true; }
+
+            if(value.IsDouble()) { parameter = value.GetDouble(); return true; }
+            if(value.IsFloat()) { parameter = value.GetFloat(); return true; }
+        }
+
+        if(value.Is<T>()){
+            parameter = value.Get<T>();
+            return true;
+        } else {
+            if(displayErrors) {
+                std::cout << "given value is not a valid type\n";
+            }
+        }
+        return false;
+    }
+
+    template<class T>
     bool loadProperty(const char* name, T& parameter) {
         return loadProperty(_jsonData, name, parameter);
+    }
+
+    template<class T>
+    bool loadPropertyArray(const char* name, T& parameter) {
+        return loadPropertyArray(_jsonData, name, parameter);
     }
 
     bool parseData(const char* data, size_t length);

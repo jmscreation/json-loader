@@ -24,6 +24,7 @@ struct Person {
     };
 
     std::vector<Hobby> hobbies;
+    std::vector<std::string> inventory;
 };
 
 std::vector<Person> people; // list of people loaded into memory
@@ -60,21 +61,34 @@ bool LoadPerson(const std::string& path) {
     
     Person person;
     json::Object hobbies;
+    json::Array inventory;
 
     if(!json::loadProperty("name", person.name)) std::cout << "failed to load person's name\n";
     if(!json::loadProperty("age", person.age)) std::cout << "failed to load person's age\n";
+
     if(json::loadProperty("hobbies", hobbies)){
         for(auto it = hobbies.MemberBegin(); it != hobbies.MemberEnd(); ++it){ // iterate over hobbies
             if(!it->name.IsString()) continue; // skip non-string hobbies
             
             Person::Hobby hobby;
             hobby.name = it->name.GetString(); // load hobby key
-            json::loadProperty(hobbies, hobby.name.data(), hobby.rating); // load hobby rating value (using json::loadProperty instead of hobby.value because of the type)
-
-            person.hobbies.emplace_back(hobby); // add hobby to person's hobby list
+            if(json::loadProperty(hobbies, hobby.name.data(), hobby.rating)){ // load hobby rating value (using json::loadProperty instead of hobby.value because of the type)
+                person.hobbies.emplace_back(hobby); // add hobby to person's hobby list
+            }
         }
     } else {
         std::cout << "failed to load person's hobbies\n";
+    }
+
+    if(json::loadPropertyArray("inventory", inventory)){
+        for(auto it = inventory.Begin(); it != inventory.End(); ++it){
+            std::string item;
+            if(json::loadValue(*it, item)){
+                person.inventory.push_back(it->GetString());
+            }
+        }
+    } else {
+        std::cout << "failed to load person's inventory\n";
     }
 
     people.emplace_back(person); // push the person onto the list of people
@@ -83,6 +97,7 @@ bool LoadPerson(const std::string& path) {
 }
 
 int main() {
+    json::displayErrors = true;
     
     // load people files
     LoadPerson("person1.json");
@@ -96,6 +111,11 @@ int main() {
 
         for(Person::Hobby& hobby : person.hobbies){
             std::cout << "\t\t" << hobby.name << " -> " << hobby.rating << " / 10\n";
+        }
+        
+        std::cout << "\tinventory:\n";
+        for(std::string& item : person.inventory){
+            std::cout << "\t\t" << item << "\n";
         }
     }
     

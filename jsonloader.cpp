@@ -32,11 +32,41 @@ namespace json {
 
         if(config.IsObject() && config.HasMember(name)){
             if(config[name].IsObject()){
+                parameter.SetObject();
                 parameter.CopyFrom(config[name], _jsonData.GetAllocator());
                 return true;
             } else {
                 if(displayErrors) {
                     std::cout << name << " is not a valid object\n";
+                }
+            }
+        }
+        return false;
+    }
+
+    bool loadPropertyArray(const Object& config, const char* name, Array& parameter) {
+        if(!_ready){
+            if(displayErrors){
+                std::cout << "Must parse JSON data before loading property\n";
+            }
+            return false;
+        }
+
+        if(config.IsObject() && config.HasMember(name)){
+            if(config[name].IsArray()){
+                parameter.SetArray();
+                Object copy;
+                copy.CopyFrom(config[name], _jsonData.GetAllocator()); // make copy of array to prevent issues on additional loading
+
+                rapidjson::GenericArray<false, Object> array = copy.GetArray(); // get non-const array of copy
+                for(auto it = array.begin(); it != array.end(); ++it){
+                    parameter.PushBack(*it, _jsonData.GetAllocator()); // move copied elements
+                }
+
+                return true;
+            } else {
+                if(displayErrors) {
+                    std::cout << name << " is not a valid array\n";
                 }
             }
         }
