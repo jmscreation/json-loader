@@ -121,7 +121,7 @@ namespace json {
             }
 
             if(config.HasMember(name)){
-                config["name"].SetString(parameter.data(), parameter.size(), _jsonData.GetAllocator());
+                config[name].SetString(parameter.data(), parameter.size(), _jsonData.GetAllocator());
                 
                 return true;
             }
