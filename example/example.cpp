@@ -31,6 +31,47 @@ struct Person {
 std::vector<Person> people; // list of people loaded into memory
 
 
+bool SavePerson(const std::string& path, const Person& person) {
+    std::ofstream file(path, std::ios::binary | std::ios::out); // output file
+
+    if(!file.is_open()){
+        std::cout << "failed to save \"" << path << "\"\n";
+        return false;
+    }
+    
+    json::clearData();
+
+    json::saveProperty("name", person.name);
+    json::saveProperty("age", person.age);
+
+    json::Object hobbies;
+    for(const Person::Hobby& hobby : person.hobbies){
+        json::saveProperty(hobbies, hobby.name.data(), hobby.rating);
+    }
+    json::saveProperty("hobbies", hobbies);
+
+    json::Array inventory;
+    for(const std::string& str : person.inventory){
+        if(!json::appendArrayValue(inventory, str)) {
+            std::cout << "warning: inventory element failed to export\n";
+        }
+    }
+    json::savePropertyArray("inventory", inventory);
+
+    std::string rawData; // where to store raw json data
+
+    if(!json::exportData(rawData)){
+        std::cout << "failed to export person data\n";
+        return false;
+    }
+
+    file << rawData;
+
+    file.close();
+
+    return true;
+}
+
 bool LoadPerson(const std::string& path) {
     std::ifstream file(path, std::ios::binary | std::ios::in); // input file
 
@@ -115,6 +156,10 @@ int main() {
             std::cout << "\t\t" << item << "\n";
         }
     }
+
+    // save one of the people to personOutput file
+
+    SavePerson("outputPerson.json", people[rand() % people.size()]);
     
     return 0;
 }

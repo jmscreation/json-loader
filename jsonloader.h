@@ -24,13 +24,22 @@ namespace json {
     typedef rapidjson::Value Object;
     typedef rapidjson::Value Array;
     extern bool displayErrors;
+    extern bool autoInitValues;
 
     // private
     extern bool _ready;
     extern rapidjson::Document _jsonData;
 
+    //public
     bool loadProperty(const Object& config, const char* name, Object& parameter);
     bool loadPropertyArray(const Object& config, const char* name, Array& parameter);
+    
+    bool saveProperty(Object& config, const char* name, const Object& parameter);
+    bool saveProperty(Object& config, const char* name, const std::string& parameter);
+    bool savePropertyArray(Object& config, const char* name, const Array& parameter);
+    bool appendArrayValue(Array& array, const std::string& parameter);
+
+    // Load Templates
 
     template<class T>
     bool loadProperty(const Object& config, const char* name, T& parameter) {
@@ -80,14 +89,6 @@ namespace json {
             }
             return false;
         }
-
-        if(!_ready){
-            if(displayErrors){
-                std::cout << "Must parse JSON data before loading property\n";
-            }
-            return false;
-        }
-
         
         if(std::is_arithmetic<T>::value && value.IsNumber()) {
             if(value.IsUint()) { parameter = value.GetUint(); return true; }
@@ -121,7 +122,116 @@ namespace json {
         return loadPropertyArray(_jsonData, name, parameter);
     }
 
+
+    // Save Templates
+
+    template<class T>
+    bool saveProperty(Object& config, const char* name, const T& parameter) {
+        if(std::is_pointer<T>::value){
+            if(displayErrors){
+                std::cout << "Pointer cannot be stored into JSON\n";
+            }
+            return false;
+        }
+
+        if(!config.IsObject() && autoInitValues){
+            config.SetObject();
+        }
+
+        if(config.IsObject()){
+            if(!config.HasMember(name)){
+                config.AddMember((rapidjson::Value().SetString(rapidjson::StringRef(name))).Move(),
+                            (rapidjson::Value().SetNull()).Move(), _jsonData.GetAllocator());
+            }
+
+            if(config.HasMember(name)){
+                if(std::is_arithmetic<T>::value) {
+                    config[name].Set<T>(parameter);
+                    return true;
+                }
+
+                if(displayErrors) {
+                    std::cout << "Invalid type to export!\n";
+                }
+                return false;
+            }
+        }
+
+        if(displayErrors) {
+            std::cout << "Failed to store member in JSON\n";
+        }
+        return false;
+    }
+
+    template<class T>
+    bool saveValue(Object& value, const T& parameter) {
+        if(std::is_pointer<T>::value){
+            if(displayErrors){
+                std::cout << "Pointer cannot be stored into JSON\n";
+            }
+            return false;
+        }
+        
+        if(std::is_arithmetic<T>::value) {
+            value.Set<T>(parameter);
+        }
+
+        if(value.Is<T>()){
+            value.Set<T>(parameter);
+            return true;
+        }
+        return false;
+    }
+
+    template<class T>
+    bool saveProperty(const char* name, const T& parameter) {
+        if(!_ready){
+            _jsonData.SetObject();
+            _ready = true;
+        }
+        return saveProperty(_jsonData, name, parameter);
+    }
+
+    template<class T>
+    bool savePropertyArray(const char* name, const T& parameter) {
+        return savePropertyArray(_jsonData, name, parameter);
+    }
+
+    template<class T>
+    bool appendArrayValue(Array& array, const T& parameter) {
+        if(!array.IsArray() && autoInitValues){
+            array.SetArray();
+        }
+
+        if(!array.IsArray()){
+            if(displayErrors){
+                std::cout << "JSON array must be an array\n";
+            }
+            return false;
+        }
+        if(std::is_pointer<T>::value){
+            if(displayErrors){
+                std::cout << "Pointer cannot be stored into JSON\n";
+            }
+            return false;
+        }
+        
+        if(std::is_arithmetic<T>::value) {
+            array.PushBack( (rapidjson::Value().Set<T>(parameter)).Move(), _jsonData.GetAllocator());
+        }
+
+        array.PushBack( (rapidjson::Value().CopyFrom(parameter)).Move(), _jsonData.GetAllocator() );
+        return true;
+    }
+
+    // Control Functions
+
     bool parseData(const char* data, size_t length);
+
+    bool exportData(const rapidjson::Value& config, std::string& output);
+
+    bool exportData(std::string& output);
+
     void clearData();
 
 }
