@@ -165,6 +165,13 @@ namespace json {
         return false;
     }
 
+    bool saveValue(Object& value, const Object& parameter) {
+
+        value.CopyFrom(parameter, _jsonData.GetAllocator());
+
+        return true;
+    }
+
     bool appendArrayValue(Array& array, const std::string& parameter) {
         if(!array.IsArray() && autoInitValues){
             array.SetArray();
@@ -178,6 +185,22 @@ namespace json {
         }
 
         array.PushBack( (rapidjson::Value().SetString(parameter.data(), parameter.size())).Move(), _jsonData.GetAllocator() );
+        return true;
+    }
+
+    bool appendArrayValue(Array& array, const Object& parameter) {
+        if(!array.IsArray() && autoInitValues){
+            array.SetArray();
+        }
+        
+        if(!array.IsArray()){
+            if(displayErrors){
+                std::cout << "JSON array must be an array\n";
+            }
+            return false;
+        }
+
+        array.PushBack( (rapidjson::Value().CopyFrom(parameter, _jsonData.GetAllocator())).Move(), _jsonData.GetAllocator() );
         return true;
     }
 

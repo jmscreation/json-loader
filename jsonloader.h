@@ -36,8 +36,10 @@ namespace json {
     
     bool saveProperty(Object& config, const char* name, const Object& parameter);
     bool saveProperty(Object& config, const char* name, const std::string& parameter);
+    bool saveValue(Object& value, const Object& parameter);
     bool savePropertyArray(Object& config, const char* name, const Array& parameter);
     bool appendArrayValue(Array& array, const std::string& parameter);
+    bool appendArrayValue(Array& array, const Object& parameter);
 
     // Load Templates
 
@@ -151,7 +153,7 @@ namespace json {
                 }
 
                 if(displayErrors) {
-                    std::cout << "Invalid type to export!\n";
+                    std::cout << "Invalid type to export\n";
                 }
                 return false;
             }
@@ -176,9 +178,8 @@ namespace json {
             value.Set<T>(parameter);
         }
 
-        if(value.Is<T>()){
-            value.Set<T>(parameter);
-            return true;
+        if(displayErrors){
+            std::cout << "Invalid type to export\n";
         }
         return false;
     }
@@ -220,7 +221,7 @@ namespace json {
             array.PushBack( (rapidjson::Value().Set<T>(parameter)).Move(), _jsonData.GetAllocator());
         }
 
-        array.PushBack( (rapidjson::Value().CopyFrom(parameter)).Move(), _jsonData.GetAllocator() );
+        array.PushBack( (rapidjson::Value().CopyFrom(parameter, _jsonData.GetAllocator())).Move(), _jsonData.GetAllocator() );
         return true;
     }
 
