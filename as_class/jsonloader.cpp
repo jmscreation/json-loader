@@ -10,7 +10,7 @@
     JSON Wrapper Basic Variables
 */
 
-JsonLoader::JsonLoader() {
+JsonLoader::JsonLoader(): _jsonData() {
 
     // public
     bool displayErrors = false; // display error messages
@@ -18,14 +18,14 @@ JsonLoader::JsonLoader() {
 
     // private
     bool _ready = false;
-    //rapidjson::Document _jsonData;
+    _jsonData.SetObject(); // root is always an object
 
 }
 
 // Loader Class Destruction
 
 JsonLoader::~JsonLoader() {
-    _jsonData.SetNull(); // cleanup cache database
+    _jsonData.SetNull();
 }
 
 /*
