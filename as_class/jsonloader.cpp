@@ -13,11 +13,11 @@
 JsonLoader::JsonLoader(): _jsonData() {
 
     // public
-    bool displayErrors = false; // display error messages
-    bool autoInitValues = true; // auto initialize values when saving properties
+    displayErrors = false; // display error messages
+    autoInitValues = true; // auto initialize values when saving properties
 
     // private
-    bool _ready = false;
+    _ready = false;
     _jsonData.SetObject(); // root is always an object
 
 }
@@ -91,8 +91,8 @@ bool JsonLoader::saveProperty(Object& config, const char* name, const Object& pa
     if(!parameter.IsObject()){
         if(displayErrors){
             std::cout << "Internal JSON parameter must be an object\n";
-            return false;
         }
+        return false;
     }
 
     if(!config.IsObject() && autoInitValues){
@@ -146,8 +146,8 @@ bool JsonLoader::savePropertyArray(Object& config, const char* name, const Array
     if(!parameter.IsArray()){
         if(displayErrors){
             std::cout << "Internal JSON parameter must be an array\n";
-            return false;
         }
+        return false;
     }
 
     if(!config.IsObject() && autoInitValues){

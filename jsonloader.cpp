@@ -82,8 +82,8 @@ namespace json {
         if(!parameter.IsObject()){
             if(displayErrors){
                 std::cout << "Internal JSON parameter must be an object\n";
-                return false;
             }
+            return false;
         }
 
         if(!config.IsObject() && autoInitValues){
@@ -137,8 +137,8 @@ namespace json {
         if(!parameter.IsArray()){
             if(displayErrors){
                 std::cout << "Internal JSON parameter must be an array\n";
-                return false;
             }
+            return false;
         }
 
         if(!config.IsObject() && autoInitValues){
