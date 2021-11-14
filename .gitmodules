@@ -1,0 +1,3 @@
+[submodule "librapidjson"]
+	path = librapidjson
+	url = https://github.com/jmscreation/librapidjson
