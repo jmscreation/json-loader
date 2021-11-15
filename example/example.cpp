@@ -6,7 +6,7 @@
 
 */
 
-#include "../jsonloader.h" // rapidjson parsing library wrapper
+#include "jsonloader.h" // rapidjson parsing library wrapper
 
 #include <fstream> // load from the file
 #include <iostream> // cout + string
