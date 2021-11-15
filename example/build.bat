@@ -18,7 +18,7 @@ set ASYNC_BUILD=1
 set COMPILER_FLAGS=-std=c++20
 set ADDITIONAL_LIBRARIES=-static-libstdc++
 set ADDITIONAL_LIBDIRS=
-set ADDITIONAL_INCLUDEDIRS=-I..\
+set ADDITIONAL_INCLUDEDIRS=-I..\include -I..\librapidjson\include
 
 del %OUTPUT% 2>nul
 
@@ -46,9 +46,9 @@ del /S /Q "example.o" 2>nul
 echo Building Wrapper...
 if not exist jsonloader.o (
 	echo jsonloader.o
-	start /B %WAIT% "jsonloader.o" %CPP% %ADDITIONAL_INCLUDEDIRS% %COMPILER_FLAGS% %DEBUG_INFO% -c ..\jsonloader.cpp -o jsonloader.o
+	start /B %WAIT% "jsonloader.o" %CPP% %ADDITIONAL_INCLUDEDIRS% %COMPILER_FLAGS% %DEBUG_INFO% -c ..\src\jsonloader.cpp -o jsonloader.o
 	if %VERBOSE% GTR 0 (
-		echo %CPP% %ADDITIONAL_INCLUDEDIRS% %COMPILER_FLAGS% %DEBUG_INFO% -c ..\jsonloader.cpp -o jsonloader.o
+		echo %CPP% %ADDITIONAL_INCLUDEDIRS% %COMPILER_FLAGS% %DEBUG_INFO% -c ..\src\jsonloader.cpp -o jsonloader.o
 	)
 )
 
