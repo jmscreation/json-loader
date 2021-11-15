@@ -12,10 +12,10 @@
 #include <type_traits>
 
 #define RAPIDJSON_HAS_STDSTRING 1
-#include "librapidjson/document.h"
-#include "librapidjson/writer.h"
-#include "librapidjson/stringbuffer.h"
-#include "librapidjson/error/en.h"
+#include "document.h"
+#include "writer.h"
+#include "stringbuffer.h"
+#include "error/en.h"
 
 
 namespace json {
