@@ -18,19 +18,23 @@
 #include "error/en.h"
 
 
-namespace json {
+class JsonLoader {
 
-    // public
+public:
     typedef rapidjson::Value Object;
     typedef rapidjson::Value Array;
-    extern bool displayErrors;
-    extern bool autoInitValues;
+    bool displayErrors;
+    bool autoInitValues;
 
-    // private
-    extern bool _ready;
-    extern rapidjson::Document _jsonData;
+private:
+    bool _ready;
+    rapidjson::Document _jsonData;
 
-    //public
+public:
+
+    JsonLoader();
+    virtual ~JsonLoader();
+
     bool loadProperty(const Object& config, const char* name, Object& parameter);
     bool loadPropertyArray(const Object& config, const char* name, Array& parameter);
     
@@ -235,6 +239,6 @@ namespace json {
 
     void clearData();
 
-}
+};
 
 #endif // __JSON_LOADER__
