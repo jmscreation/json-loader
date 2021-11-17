@@ -18,7 +18,7 @@ set ASYNC_BUILD=1
 set COMPILER_FLAGS=-std=c++20
 set ADDITIONAL_LIBRARIES=-static-libstdc++
 set ADDITIONAL_LIBDIRS=
-set ADDITIONAL_INCLUDEDIRS=-I..\include -I..\librapidjson\include
+set ADDITIONAL_INCLUDEDIRS=-I..\include -I..\libraries\librapidjson-main\include
 
 del %OUTPUT% 2>nul
 
